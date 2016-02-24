@@ -1,0 +1,24 @@
+<html>
+
+<body>
+{{^username}}
+<form action="/login" method="post">
+      <input type="text" placeholder="Username" name="loginName"/>
+        <button type="submit">Login</button>
+</form>
+<br>
+{{/username}}
+
+{{#username}}
+<form action="/logout" method="post">
+    <button type="submit">Logout</button>
+</form>
+{{/username}}
+
+{{#messages}}
+   <a href="/?replyId={{id}}">{{author}} : {{text}}</a><br>
+{{/messages}}
+
+</body>
+
+</html>
