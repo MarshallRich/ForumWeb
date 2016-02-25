@@ -1,6 +1,7 @@
 package com.theironyard;
 
-import com.sun.tools.internal.ws.wsdl.document.jaxws.Exception;
+
+
 import spark.ModelAndView;
 import spark.Session;
 import spark.Spark;
@@ -41,6 +42,7 @@ public class Main {
 
                     m.put("messages", threads);
                     m.put("username", username);
+                    m.put("replyId", replyIdNum);
                     return new ModelAndView(m, "home.html");
                 }),
                 new MustacheTemplateEngine()
@@ -54,10 +56,42 @@ public class Main {
                         Spark.halt(403);
                     }
 
+
+                    User user = users.get(username);
+                    if (user == null){
+                        user = new User(username, "");
+                        users.put(username, user);
+                    }
+
                     Session session = request.session();
-                    session.attribute("username");
+                    session.attribute("username", username);
 
                     response.redirect("/");
+                    return "";
+                }
+        );
+
+        Spark.post(
+                "/create-message",
+                (request, response) -> {
+                    Session session = request.session();
+                    String username = session.attribute("username");
+                    String text = request.queryParams("messageText");
+                    String replyId = request.queryParams("replyId");
+
+                    if (username == null) {
+                        throw new Exception("Not logged in");
+                    }
+
+                    if (text == null || replyId == null ) {
+                        throw new Exception("Didn't get needed parameters");
+                    }
+                    int replyIdNum = Integer.valueOf(replyId);
+
+                    Message m = new Message(messages.size(), replyIdNum, username, text);
+                    messages.add(m);
+
+                    response.redirect(request.headers("Referer"));
                     return "";
                 }
         );
